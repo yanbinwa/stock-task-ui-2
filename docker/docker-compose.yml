@@ -1,0 +1,19 @@
+services:
+  local_ui:
+    container_name: ${DOCKER_CONTAINER}
+    image: ${IMAGE_NAME}
+    logging:
+      driver: json-file
+      options:
+        max-file: "10"
+        max-size: "5m"
+    ports:
+    - ${STOCK_TASK_UI_PORT}:${STOCK_TASK_UI_PORT}
+    environment:
+      - STOCK_TASK_UI_PORT=${STOCK_TASK_UI_PORT}
+      - STOCK_TASK_URL=${STOCK_TASK_HOST}:${STOCK_TASK_PORT}
+    restart: always
+    # volumes:
+    # - /etc/localtime:/etc/localtime
+version: '2.1'
+
