@@ -28,7 +28,7 @@
 
 <script>
 import axios from 'axios';
-const BaseUrl = 'http://localhost:1700/yanbin/stock';
+const BaseUrl = 'stock_task/yanbin/stock';
 function getRemoteFile(res) {
   if (!res) {
     return null;
