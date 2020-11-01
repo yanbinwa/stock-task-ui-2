@@ -1,34 +1,82 @@
 <template>
-  <div class="from_box">
-    <form action="">
-      <label >选股策略</label>
-      <input type="text"  placeholder="请输入选股策略" v-model="request.template">
-      <label >执行时间</label>
-      <input type="text" placeholder="请输入执行时间" v-model="request.time">
-      <br><br>
-      <label >起始时间</label>
-      <input type="text" placeholder="回测起始时间" v-model="request.startTime">
-      <label >终止时间</label>
-      <input type="text" placeholder="回测终止时间" v-model="request.endTime">
-      <br><br>
-      <label >买入时间</label>
-      <input type="text" placeholder="买入时间" v-model="request.buyRule.time">
-      <label >买入延后天数</label>
-      <input type="text" placeholder="买入延后天数" v-model="request.buyRule.offset">
-      <br><br>
-      <label >卖出时间</label>
-      <input type="text" placeholder="卖出时间" v-model="request.saleRule.time">
-      <label >卖出延后天数</label>
-      <input type="text" placeholder="卖出延后天数" v-model="request.saleRule.offset">
-      <br><br>
-    </form>
+  <div style="margin: 20px;">
+    <el-header align="left">回测条件: </el-header>
+    <el-form :label-position="labelPosition" label-width="150px">
+      <el-form-item label="当天">
+        <div align="left">
+          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition1"/>
+        </div>
+      </el-form-item>
+      <el-form-item label="上一个交易日">
+        <div align="left">
+          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition2"/>
+        </div>
+      </el-form-item>
+      <el-form-item label="其他">
+        <div align="left">
+          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition3"/>
+        </div>
+      </el-form-item>
+      <el-form-item label="回测区间">
+        <div align="left">
+          <el-date-picker
+            v-model="request.timeRange"
+            type="daterange"
+            align="right"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions">
+          </el-date-picker>
+        </div>
+      </el-form-item>
+    </el-form>
+    <br/>
+    <el-header align="left">回测策略: </el-header>
+    <el-form :label-position="labelPosition" label-width="150px">
+      <el-form-item label="买入">
+        <div align="left">
+          <el-time-picker
+            :editable="false"
+            v-model="request.buyRule.time"
+            :picker-options="{
+              selectableRange: ['09:30:00 - 11:30:00', '13:00:00 - 15:00:00']
+            }"
+            :align="right">
+          </el-time-picker>
+          <label>延后天数</label>
+          <el-input type='number' style="width: 100px;" placeholder="筛选条件" v-model="request.buyRule.offset"/>
+        </div>
+      </el-form-item>
+      <el-form-item label="卖出">
+        <div align="left">
+          <el-time-picker
+            :editable="false"
+            v-model="request.saleRule.time"
+            :picker-options="{
+              selectableRange: ['09:30:00 - 11:30:00', '13:00:00 - 15:00:00']
+            }"
+            :align="right">
+          </el-time-picker>
+          <label>延后天数</label>
+          <el-input type='number' style="width: 100px;" placeholder="筛选条件" v-model="request.saleRule.offset"/>
+        </div>
+      </el-form-item>
+    </el-form>
     <button @click="onSubmit()">提交</button>
+    <br><br>
+    <router-link to="/stockQuery">股票查询</router-link>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+
 const BaseUrl = 'stock_task/yanbin/stock';
+const DatePlaceHolder = '${date}';
+const LastDatePlaceHolder = '${lastDate}';
+
 function getRemoteFile(res) {
   if (!res) {
     return null;
@@ -43,21 +91,49 @@ function getRemoteFile(res) {
     blob, filename,
   });
 }
+
 export default {
   name: "StockTask",
   data () {
     return {
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
+      },
       request: {
-        "template": "${date}${time}，大单净比大于8.8，量比大于3.8，换手率大于0.8%，${lastDate}收盘价小于5日线*1.18，涨跌幅小于15%，剔除ST，无立案调查，创业板",
-        "time": "9点32分",
-        "startTime": "2020年9月21日",
-        "endTime": "2020年9月25日",
+        "timeRange": null,
+        "condition1": "9点32分时大单净比大于8.8，量比大于3.8，换手率大于0.8%",
+        "condition2": "收盘价小于5日线*1.18，涨跌幅小于15%",
+        "condition3": "剔除ST，无立案调查，创业板",
         "buyRule": {
-          "time": "9点32分",
+          "time": new Date(2020, 10, 31, 9, 32),
           "offset": 0
         },
         "saleRule": {
-          "time": "9点32分",
+          "time": new Date(2020, 10, 31, 9, 32),
           "offset": 1
         }
       }
@@ -66,10 +142,9 @@ export default {
   methods: {
     onSubmit() {
       const stockTaskRequest = {
-        "queryTemplate": this.request.template,
-        "queryTimes": [this.request.time],
-        "startTime": this.request.startTime,
-        "endTime": this.request.endTime,
+        "queryTemplate": `${DatePlaceHolder}${this.request.condition1}，${LastDatePlaceHolder}${this.request.condition2}，${this.request.condition3}`,
+        "startTime": this.request.timeRange[0],
+        "endTime": this.request.timeRange[1],
         "buyRule": this.request.buyRule,
         "saleRule": this.request.saleRule
       }
@@ -100,8 +175,3 @@ export default {
 }
 
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-
-</style>
