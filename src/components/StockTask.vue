@@ -64,7 +64,7 @@
         </div>
       </el-form-item>
     </el-form>
-    <button @click="onSubmit()">提交</button>
+    <el-button type="primary" :loading="loading" @click="onSubmit()">提交</el-button>
     <br><br>
     <router-link to="/stockQuery">股票查询</router-link>
   </div>
@@ -136,11 +136,17 @@ export default {
           "time": new Date(2020, 10, 31, 9, 32),
           "offset": 1
         }
-      }
+      },
+      loading: false
     }
   },
   methods: {
     onSubmit() {
+      if (this.request.timeRange == null) {
+        console.error(`回测时间不能为空`);
+        return
+      }
+      this.loading = true
       const stockTaskRequest = {
         "queryTemplate": `${DatePlaceHolder}${this.request.condition1}，${LastDatePlaceHolder}${this.request.condition2}，${this.request.condition3}`,
         "startTime": this.request.timeRange[0],
@@ -169,6 +175,8 @@ export default {
         }
       ).catch(function (error) { // 请求失败处理
         console.log(error);
+      }).finally(() => {
+        this.loading = false;
       });
     }
   }

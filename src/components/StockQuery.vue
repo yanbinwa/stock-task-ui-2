@@ -18,7 +18,7 @@
         </div>
       </el-form-item>
     </el-form>
-    <button @click="onSubmit()">提交</button>
+    <el-button type="primary" :loading="loading" @click="onSubmit()">提交</el-button>
     <br><br>
     <router-link to="/stockTask">回测页面</router-link>
   </div>
@@ -51,11 +51,13 @@ export default {
         "condition1": "9点32分时大单净比大于8.8，量比大于3.8，换手率大于0.8%",
         "condition2": "收盘价小于5日线*1.18，涨跌幅小于15%",
         "condition3": "剔除ST，无立案调查，创业板",
-      }
+      },
+      loading: false
     }
   },
   methods: {
     onSubmit() {
+      this.loading = true
       const stockTaskRequest = {
         "queryTemplate": `${DatePlaceHolder}${this.request.condition1}，${LastDatePlaceHolder}${this.request.condition2}，${this.request.condition3}`,
       }
@@ -80,6 +82,8 @@ export default {
         }
       ).catch(function (error) { // 请求失败处理
         console.log(error);
+      }).finally(() => {
+        this.loading = false;
       });
     }
   }
