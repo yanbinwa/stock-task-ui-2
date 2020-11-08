@@ -4,20 +4,26 @@
     <el-form :label-position="labelPosition" label-width="150px">
       <el-form-item label="当天">
         <div align="left">
-          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition1"/>
+          <el-input type="textarea" class="queryInput" :placeholder="constants.conditionDefault1" v-model="request.condition1"/>
         </div>
       </el-form-item>
       <el-form-item label="上一个交易日">
         <div align="left">
-          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition2"/>
+          <el-input type="textarea" class="queryInput" :placeholder="constants.conditionDefault2" v-model="request.condition2"/>
         </div>
       </el-form-item>
       <el-form-item label="其他">
         <div align="left">
-          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition3"/>
+          <el-input type="textarea" class="queryInput" :placeholder="constants.conditionDefault3" v-model="request.condition3"/>
         </div>
       </el-form-item>
-      <el-form-item label="回测区间">
+      <el-form-item label="结果">
+        <div align="left">
+          <el-input type="textarea" class="queryInput" :placeholder="constants.conditionDefault3" v-model="request.condition3"/>
+          <el-link href="http://www.iwencai.com/unifiedwap/home/index" type="success" class="tradeLabel">请前往问财验证</el-link>
+        </div>
+      </el-form-item>
+      <el-form-item style="margin-top: 40px" label="回测区间">
         <div align="left">
           <el-date-picker
             v-model="request.timeRange"
@@ -45,8 +51,8 @@
             }"
             :align="right">
           </el-time-picker>
-          <label>延后天数</label>
-          <el-input type='number' style="width: 100px;" placeholder="筛选条件" v-model="request.buyRule.offset"/>
+          <label class="tradeLabel">延后天数</label>
+          <el-input type='number' class="tradeDay" placeholder="筛选条件" v-model="request.buyRule.offset"/>
         </div>
       </el-form-item>
       <el-form-item label="卖出">
@@ -59,8 +65,8 @@
             }"
             :align="right">
           </el-time-picker>
-          <label>延后天数</label>
-          <el-input type='number' style="width: 100px;" placeholder="筛选条件" v-model="request.saleRule.offset"/>
+          <label class="tradeLabel">延后天数</label>
+          <el-input type='number' class="tradeDay" placeholder="筛选条件" v-model="request.saleRule.offset"/>
         </div>
       </el-form-item>
     </el-form>
@@ -90,6 +96,14 @@ function getRemoteFile(res) {
   return ({
     blob, filename,
   });
+}
+
+function isEmpty(obj){
+  if (typeof obj == "undefined" || obj == null || obj == ""){
+    return true;
+  } else {
+    return false;
+  }
 }
 
 export default {
@@ -125,9 +139,9 @@ export default {
       },
       request: {
         "timeRange": null,
-        "condition1": "9点32分时大单净比大于8.8，量比大于3.8，换手率大于0.8%",
-        "condition2": "收盘价小于5日线*1.18，涨跌幅小于15%",
-        "condition3": "剔除ST，无立案调查，创业板",
+        "condition1": null,
+        "condition2": null,
+        "condition3": null,
         "buyRule": {
           "time": new Date(2020, 10, 31, 9, 32),
           "offset": 0
@@ -137,18 +151,28 @@ export default {
           "offset": 1
         }
       },
-      loading: false
+      loading: false,
+      constants: {
+        "conditionDefault1": "9点32分时大单净比大于8.8，量比大于3.8，换手率大于0.8%",
+        "conditionDefault2": "收盘价小于5日线*1.18，涨跌幅小于15%",
+        "conditionDefault3": "剔除ST，无立案调查，创业板"
+      }
     }
   },
   methods: {
     onSubmit() {
       if (this.request.timeRange == null) {
-        console.error(`回测时间不能为空`);
+        console.error('回测时间不能为空');
+        return
+      }
+      var query = this.buildQuery();
+      if (isEmpty(query)) {
+        console.error('回测策略至少有一个不为空');
         return
       }
       this.loading = true
       const stockTaskRequest = {
-        "queryTemplate": `${DatePlaceHolder}${this.request.condition1}，${LastDatePlaceHolder}${this.request.condition2}，${this.request.condition3}`,
+        "queryTemplate": query,
         "startTime": this.request.timeRange[0],
         "endTime": this.request.timeRange[1],
         "buyRule": this.request.buyRule,
@@ -178,8 +202,39 @@ export default {
       }).finally(() => {
         this.loading = false;
       });
+    },
+    buildQuery() {
+      var query = "";
+      if (!isEmpty(this.request.condition1)) {
+        query += DatePlaceHolder + this.request.condition1;
+      }
+      if (!isEmpty(this.request.condition2)) {
+        if (!isEmpty(query)) {
+          query += "，";
+        }
+        query += LastDatePlaceHolder + this.request.condition2;
+      }
+      if (!isEmpty(this.request.condition3)) {
+        if (!isEmpty(query)) {
+          query += "，";
+        }
+        query += this.request.condition2;
+      }
+      return query;
     }
   }
 }
 
 </script>
+
+<style scoped>
+  .queryInput {
+    width: 400px
+  }
+  .tradeDay {
+    width: 100px
+  }
+  .tradeLabel {
+    margin-left: 30px
+  }
+</style>
