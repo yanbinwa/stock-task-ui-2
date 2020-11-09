@@ -38,8 +38,13 @@
           headers: {'content-type': 'application/x-www-form-urlencoded'},
           data: qs.stringify({'userName': this.form.username, 'password': this.form.password})
         }).then(
-          _ => {
-            this.$router.push({ path: '/' });
+          response => {
+            if (response.status === 200) {
+              this.$router.push({ path: '/' });
+            } else {
+              // TODO 需要调通
+              alert("用户名或密码错误，请重新输入")
+            }
           }
         ).catch(function (error) { // 请求失败处理
           console.log(error);

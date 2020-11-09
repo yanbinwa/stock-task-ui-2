@@ -1,22 +1,21 @@
 import axios from 'axios';
+
 const AdminUrl = 'stock_admin/yanbin/admin';
 
-function checkAuth() {
-  console.log("check user");
-  var ret = false;
-  axios({
-    method: 'get',
-    url: `${AdminUrl}/check`,
-    async: false
-  }).then(
-    response => {
-      if (response.status === 200) {
-        ret = true
-      }
-    },
-  ).catch(function (error) { // 请求失败处理
-  });
-  return ret;
+async function checkAuth() {
+  try {
+    var response = await axios({
+      method: 'get',
+      url: `${AdminUrl}/check`,
+    });
+    if (response.status !== 200) {
+      return false
+    }
+    return true
+  } catch (e) {
+    alert("用户未登录")
+    return false;
+  }
 }
 
 export {
