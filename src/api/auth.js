@@ -13,7 +13,6 @@ async function checkAuth() {
     }
     return true
   } catch (e) {
-    alert("用户未登录")
     return false;
   }
 }

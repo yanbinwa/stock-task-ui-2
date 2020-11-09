@@ -14,12 +14,18 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requireAuth) {
     auth.checkAuth().then(checkRet => {
       if (checkRet === true) {
-        if (to.path == '/login') {
-          next({path: '/'})
-        }
         next()
       } else {
+        alert("用户未登录")
         next({path: '/login'})
+      }
+    });
+  } else if (to.path == '/login') {
+    auth.checkAuth().then(checkRet => {
+      if (checkRet === true) {
+        next({path: '/'})
+      } else {
+        next()
       }
     });
   } else {
