@@ -1,5 +1,5 @@
 <template>
-  <div style="margin: 20px;">
+  <div>
     <el-header align="left">回测条件: </el-header>
     <el-form :label-position="labelPosition" label-width="150px">
       <el-form-item label="当天">
@@ -72,7 +72,6 @@
     </el-form>
     <el-button type="primary" :loading="loading" @click="onSubmit()">提交</el-button>
     <br><br>
-    <router-link to="/stockQuery">股票查询</router-link>
   </div>
 </template>
 
@@ -159,17 +158,31 @@ export default {
       }
     }
   },
+  created(){
+    this.onLoadPage();
+  },
   methods: {
+    onLoadPage() {
+      // 获取用户子定义的策略，写入到对应的对象中
+      alert("loading page");
+    },
     onSubmit() {
       if (this.request.timeRange == null) {
-        console.error('回测时间不能为空');
+        alert('回测时间不能为空');
         return
       }
       var query = this.buildQuery();
       if (isEmpty(query)) {
-        console.error('回测策略至少有一个不为空');
+        alert('回测策略至少有一个不为空');
         return
       }
+      this.saveQuery();
+      this.getTestResult();
+    },
+    saveQuery() {
+
+    },
+    getTestResult() {
       this.loading = true
       const stockTaskRequest = {
         "queryTemplate": query,
@@ -198,7 +211,7 @@ export default {
           window.URL.revokeObjectURL(link.href)
         }
       ).catch(function (error) { // 请求失败处理
-        console.log(error);
+        alert(error);
       }).finally(() => {
         this.loading = false;
       });

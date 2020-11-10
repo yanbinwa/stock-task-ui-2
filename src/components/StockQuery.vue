@@ -20,7 +20,6 @@
     </el-form>
     <el-button type="primary" :loading="loading" @click="onSubmit()">提交</el-button>
     <br><br>
-    <router-link to="/stockTask">回测页面</router-link>
   </div>
 </template>
 
@@ -91,7 +90,6 @@ export default {
 
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
 </style>

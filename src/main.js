@@ -20,14 +20,6 @@ router.beforeEach((to, from, next) => {
         next({path: '/login'})
       }
     });
-  } else if (to.path == '/login') {
-    auth.checkAuth().then(checkRet => {
-      if (checkRet === true) {
-        next({path: '/'})
-      } else {
-        next()
-      }
-    });
   } else {
     next()
   }
