@@ -44,9 +44,9 @@ http {
     gzip  on;
     gzip_static  on;
 
-    upstream STOCK_TASK_URL {
+    upstream STOCK_ADMIN_URL {
         dynamic_resolve fallback=stale fail_timeout=30s;
-        server "${STOCK_TASK_URL}";
+        server "${STOCK_ADMIN_URL}";
     }
 
     server {
@@ -109,7 +109,15 @@ http {
         }
 
         location /stock_task {
-            proxy_pass http://STOCK_TASK_URL/;
+            proxy_pass http://STOCK_ADMIN_URL/;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+            add_header Cache-Control no-store;
+            add_header Cache-Control private;
+        }
+
+        location /stock_admin {
+            proxy_pass http://STOCK_ADMIN_URL/;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
             add_header Cache-Control no-store;

@@ -10,6 +10,7 @@ ADD config build/config
 ADD src build/src
 ADD static build/static
 ADD index.html .babelrc .editorconfig .eslintignore .eslintrc.js .postcssrc.js .eslintrc.js .eslintignore build/
+RUN npm install qs
 RUN cd build && npm install --production && npm run build
 
 # Step 2
