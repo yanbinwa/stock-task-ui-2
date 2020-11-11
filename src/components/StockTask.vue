@@ -4,22 +4,22 @@
     <el-form :label-position="labelPosition" label-width="150px">
       <el-form-item label="当天">
         <div align="left">
-          <el-input type="textarea" class="queryInput" :placeholder="constants.conditionDefault1" v-model="request.condition1"/>
+          <el-input type="textarea" class="queryInput" @change="onChange" :placeholder="constants.conditionDefault1" v-model="request.condition1"/>
         </div>
       </el-form-item>
       <el-form-item label="上一个交易日">
         <div align="left">
-          <el-input type="textarea" class="queryInput" :placeholder="constants.conditionDefault2" v-model="request.condition2"/>
+          <el-input type="textarea" class="queryInput" @change="onChange" :placeholder="constants.conditionDefault2" v-model="request.condition2"/>
         </div>
       </el-form-item>
       <el-form-item label="其他">
         <div align="left">
-          <el-input type="textarea" class="queryInput" :placeholder="constants.conditionDefault3" v-model="request.condition3"/>
+          <el-input type="textarea" class="queryInput" @change="onChange" :placeholder="constants.conditionDefault3" v-model="request.condition3"/>
         </div>
       </el-form-item>
       <el-form-item label="结果">
         <div align="left">
-          <el-input type="textarea" class="queryInput" :placeholder="constants.conditionDefault3" v-model="request.condition3"/>
+          <el-input type="textarea" class="queryInput2" placeholder="请求试例" v-model="demo"/>
           <el-link href="http://www.iwencai.com/unifiedwap/home/index" type="success" class="tradeLabel">请前往问财验证</el-link>
         </div>
       </el-form-item>
@@ -155,16 +155,50 @@ export default {
         "conditionDefault1": "9点32分时大单净比大于8.8，量比大于3.8，换手率大于0.8%",
         "conditionDefault2": "收盘价小于5日线*1.18，涨跌幅小于15%",
         "conditionDefault3": "剔除ST，无立案调查，创业板"
-      }
+      },
+      demo: null
     }
   },
   created(){
-    this.onLoadPage();
+    this.loadTaskConfig();
   },
   methods: {
-    onLoadPage() {
+    loadTaskConfig() {
       // 获取用户子定义的策略，写入到对应的对象中
-      alert("loading page");
+      axios({
+        method: 'get',
+        url: `${BaseUrl}/config`
+      }).then(
+        response => {
+          if (response.data.data == null) {
+            return
+          }
+          const regressionConfig = response.data.data.regressionConfig;
+          if (regressionConfig == null) {
+            return
+          }
+          this.request.condition1 = regressionConfig.currentDayRule;
+          this.request.condition2 = regressionConfig.lastDayRule;
+          this.request.condition3 = regressionConfig.other;
+        }
+      ).catch(function (error) { // 请求失败处理
+        alert(error);
+      });
+    },
+    saveTaskConfig() {
+      // 获取用户子定义的策略，写入到对应的对象中
+      const taskConfig = {
+        "regressionConfig": {
+          "currentDayRule": this.request.condition1,
+          "lastDayRule": this.request.condition2,
+          "other": this.request.condition3
+        }
+      }
+      axios({
+        method: 'post',
+        url: `${BaseUrl}/config`,
+        data: taskConfig
+      });
     },
     onSubmit() {
       if (this.request.timeRange == null) {
@@ -176,11 +210,8 @@ export default {
         alert('回测策略至少有一个不为空');
         return
       }
-      this.saveQuery();
+      this.saveTaskConfig();
       this.getTestResult();
-    },
-    saveQuery() {
-
     },
     getTestResult() {
       this.loading = true
@@ -234,6 +265,25 @@ export default {
         query += this.request.condition2;
       }
       return query;
+    },
+    onChange() {
+      var query = "";
+      if (!isEmpty(this.request.condition1)) {
+        query += DatePlaceHolder + this.request.condition1;
+      }
+      if (!isEmpty(this.request.condition2)) {
+        if (!isEmpty(query)) {
+          query += "，";
+        }
+        query += LastDatePlaceHolder + this.request.condition2;
+      }
+      if (!isEmpty(this.request.condition3)) {
+        if (!isEmpty(query)) {
+          query += "，";
+        }
+        query += this.request.condition2;
+      }
+      this.demo = query;
     }
   }
 }
@@ -243,6 +293,9 @@ export default {
 <style scoped>
   .queryInput {
     width: 400px
+  }
+  .queryInput2 {
+    width: 800px
   }
   .tradeDay {
     width: 100px

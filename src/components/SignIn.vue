@@ -4,8 +4,8 @@
       <h3>欢迎注册</h3>
       <br/>
       <div align="middle">
-          <label>账号</label>
-          <el-input type="text" class="loginInput" placeholder="请输入账号" v-model="form.username"></el-input>
+        <label>账号</label>
+        <el-input type="text" class="loginInput" placeholder="请输入账号" v-model="form.username"></el-input>
       </div>
       <div align="middle">
         <label>密码</label>

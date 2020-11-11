@@ -41,6 +41,10 @@
     },
     methods: {
       onSubmit() {
+        if (this.form.username === "" || this.form.password === "") {
+          alert("用户名或密码为空")
+          return
+        }
         axios({
           method: 'post',
           url: `${AdminUrl}/login`, // 请求地址
@@ -56,7 +60,7 @@
             }
           }
         ).catch(function (error) { // 请求失败处理
-          console.log(error);
+          alert("用户名或密码错误，请重新输入")
         });
       },
       showPassword() {
@@ -74,6 +78,8 @@
 
 <style>
   .loginInput {
-    width: 200px
+    width: 150px;
+    margin-left: 20px;
+    height: 60px;
   }
 </style>
