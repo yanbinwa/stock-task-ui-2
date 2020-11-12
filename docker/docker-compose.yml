@@ -12,6 +12,7 @@ services:
     environment:
       - STOCK_TASK_UI_PORT=${STOCK_TASK_UI_PORT}
       - STOCK_ADMIN_URL=${STOCK_SECURITY_HOST}:${STOCK_SECURTY_PORT}
+      - STOCK_TASK_URL=${STOCK_TASK_HOST}:${STOCK_TASK_PORT}
     restart: always
     # volumes:
     # - /etc/localtime:/etc/localtime

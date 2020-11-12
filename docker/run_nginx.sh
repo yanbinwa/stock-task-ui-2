@@ -9,6 +9,7 @@ envsubst '
 $$NAMESERVER
 $$STOCK_TASK_UI_PORT
 $$STOCK_ADMIN_URL
+$$STOCK_TASK_URL
 ' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 nginx -t
 nginx -g "daemon off;"

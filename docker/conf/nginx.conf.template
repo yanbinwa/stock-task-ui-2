@@ -16,6 +16,8 @@ http {
 
     log_format auth_header 'NGINX: [$time_local] “$request”  auth:"$user_id@$http_x_appid" from:"$remote_addr $http_x_forwarded_for" '
                       'ret:"code:$status size:$body_bytes_sent" info:[$http_referer][$http_user_agent]';
+    log_format  ssllog 'ssllog  [$time_local]  uri: "$uri" https: $scheme post/get: $request_method request_completion: $request_completion alltime: $request_time code: $status remote_client: $remote_addr / $http_referer / $http_host uepstream_addr:$upstream_addr upstream_status:$upstream_status upstream_time:$upstream_response_time';
+
     underscores_in_headers on;
     access_log /dev/null;
     rewrite_log on;
@@ -49,8 +51,13 @@ http {
         server "${STOCK_ADMIN_URL}";
     }
 
+    upstream STOCK_TASK_URL {
+        dynamic_resolve fallback=stale fail_timeout=30s;
+        server "${STOCK_TASK_URL}";
+    }
+
     server {
-        access_log /var/log/nginx/access.log auth_header;
+        access_log /var/log/nginx/access.log ssllog;
 
         set $appid "";
         set $user_id "";
@@ -108,7 +115,7 @@ http {
             index  index.html index.htm;
         }
 
-        location /stock_task {
+        location /stock_admin {
             proxy_pass http://STOCK_ADMIN_URL/;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
@@ -116,8 +123,8 @@ http {
             add_header Cache-Control private;
         }
 
-        location /stock_admin {
-            proxy_pass http://STOCK_ADMIN_URL/;
+        location /stock_task {
+            proxy_pass http://STOCK_TASK_URL/;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
             add_header Cache-Control no-store;
