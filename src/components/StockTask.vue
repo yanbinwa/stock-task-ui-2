@@ -4,22 +4,22 @@
     <el-form :label-position="labelPosition" label-width="150px">
       <el-form-item label="当天">
         <div align="left">
-          <el-input type="textarea" class="queryInput" @change="onChange" :placeholder="constants.conditionDefault1" v-model="request.condition1"/>
+          <el-input type="text" class="queryInput" @change="onChange" @keyup.enter.native="handleEnter($event)" :placeholder="constants.conditionDefault1" v-model="request.condition1"/>
         </div>
       </el-form-item>
       <el-form-item label="上一个交易日">
         <div align="left">
-          <el-input type="textarea" class="queryInput" @change="onChange" :placeholder="constants.conditionDefault2" v-model="request.condition2"/>
+          <el-input type="text" class="queryInput" @change="onChange" @keyup.enter.native="handleEnter($event)" :placeholder="constants.conditionDefault2" v-model="request.condition2"/>
         </div>
       </el-form-item>
       <el-form-item label="其他">
         <div align="left">
-          <el-input type="textarea" class="queryInput" @change="onChange" :placeholder="constants.conditionDefault3" v-model="request.condition3"/>
+          <el-input type="text" class="queryInput" @change="onChange" @keyup.enter.native="handleEnter($event)" :placeholder="constants.conditionDefault3" v-model="request.condition3"/>
         </div>
       </el-form-item>
       <el-form-item label="结果">
         <div align="left">
-          <el-input type="textarea" class="queryInput2" placeholder="请求试例" v-model="demo"/>
+          <el-input type="textarea" readonly="true" class="queryInput2" placeholder="请求试例" v-model="demo"/>
           <el-link href="http://www.iwencai.com/unifiedwap/home/index" type="success" class="tradeLabel">请前往问财验证</el-link>
         </div>
       </el-form-item>
@@ -76,9 +76,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+  import axios from 'axios';
 
-const BaseUrl = 'stock_task/yanbin/stock';
+  const BaseUrl = 'stock_task/yanbin/stock';
 const DatePlaceHolder = '${date}';
 const LastDatePlaceHolder = '${lastDate}';
 
@@ -134,7 +134,11 @@ export default {
             start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
             picker.$emit('pick', [start, end]);
           }
-        }]
+        }],
+        disabledDate: (time) => {
+          var startTime = new Date('2020-10-11');
+          return time.getTime() < startTime.getTime() || time.getTime() > new Date().getTime();
+        }
       },
       request: {
         "timeRange": null,
@@ -211,9 +215,9 @@ export default {
         return
       }
       this.saveTaskConfig();
-      this.getTestResult();
+      this.getTestResult(query);
     },
-    getTestResult() {
+    getTestResult(query) {
       this.loading = true
       const stockTaskRequest = {
         "queryTemplate": query,
@@ -267,23 +271,39 @@ export default {
       return query;
     },
     onChange() {
+      // 获取今天的日期和昨天的日期
       var query = "";
       if (!isEmpty(this.request.condition1)) {
-        query += DatePlaceHolder + this.request.condition1;
+        query += this.dealTime(0) + this.request.condition1;
       }
       if (!isEmpty(this.request.condition2)) {
         if (!isEmpty(query)) {
           query += "，";
         }
-        query += LastDatePlaceHolder + this.request.condition2;
+        query += this.dealTime(1) + this.request.condition2;
       }
       if (!isEmpty(this.request.condition3)) {
         if (!isEmpty(query)) {
           query += "，";
         }
-        query += this.request.condition2;
+        query += this.request.condition3;
       }
       this.demo = query;
+    },
+    handleEnter(event){
+      event.target.blur();
+      this.onChange();
+    },
+    dealTime(v){
+      let b = 24 * 60 * 60 * 1000;
+      let day = new Date();
+
+      day.setTime(day.getTime() - v * b);
+      let dayMon = day.getMonth() + 1
+      let dayDat = day.getDate() + 1
+
+      let s = day.getFullYear() + "年" + dayMon + "月" + dayDat + "日";
+      return s;
     }
   }
 }
@@ -292,7 +312,7 @@ export default {
 
 <style scoped>
   .queryInput {
-    width: 400px
+    width: 800px
   }
   .queryInput2 {
     width: 800px

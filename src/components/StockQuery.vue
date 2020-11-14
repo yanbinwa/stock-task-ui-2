@@ -4,17 +4,17 @@
     <el-form :label-position="labelPosition" label-width="150px">
       <el-form-item label="当天">
         <div align="left">
-          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition1"/>
+          <el-input type="text" class="queryInput" placeholder="筛选条件" v-model="request.condition1"/>
         </div>
       </el-form-item>
       <el-form-item label="上一个交易日">
         <div align="left">
-          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition2"/>
+          <el-input type="text" class="queryInput" placeholder="筛选条件" v-model="request.condition2"/>
         </div>
       </el-form-item>
       <el-form-item label="其他">
         <div align="left">
-          <el-input type="textarea" style="width: 400px;" placeholder="筛选条件" v-model="request.condition3"/>
+          <el-input type="text" class="queryInput" placeholder="筛选条件" v-model="request.condition3"/>
         </div>
       </el-form-item>
     </el-form>
@@ -54,8 +54,52 @@ export default {
       loading: false
     }
   },
+  created(){
+    this.loadTaskConfig();
+  },
   methods: {
+    loadTaskConfig() {
+      // 获取用户子定义的策略，写入到对应的对象中
+      axios({
+        method: 'get',
+        url: `${BaseUrl}/config`
+      }).then(
+        response => {
+          if (response.data.data == null) {
+            return
+          }
+          const queryConfig = response.data.data.queryConfig;
+          if (queryConfig == null) {
+            return
+          }
+          this.request.condition1 = queryConfig.currentDayRule;
+          this.request.condition2 = queryConfig.lastDayRule;
+          this.request.condition3 = queryConfig.other;
+        }
+      ).catch(function (error) { // 请求失败处理
+        alert(error);
+      });
+    },
+    saveTaskConfig() {
+      // 获取用户子定义的策略，写入到对应的对象中
+      const taskConfig = {
+        "queryConfig": {
+          "currentDayRule": this.request.condition1,
+          "lastDayRule": this.request.condition2,
+          "other": this.request.condition3
+        }
+      }
+      axios({
+        method: 'post',
+        url: `${BaseUrl}/config`,
+        data: taskConfig
+      });
+    },
     onSubmit() {
+      this.saveTaskConfig();
+      this.getQueryResult();
+    },
+    getQueryResult() {
       this.loading = true
       const stockTaskRequest = {
         "queryTemplate": `${DatePlaceHolder}${this.request.condition1}，${LastDatePlaceHolder}${this.request.condition2}，${this.request.condition3}`,
@@ -91,5 +135,7 @@ export default {
 </script>
 
 <style scoped>
-
+  .queryInput {
+    width: 800px
+  }
 </style>

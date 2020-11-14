@@ -11,6 +11,7 @@ ADD src build/src
 ADD static build/static
 ADD index.html .babelrc .editorconfig .eslintignore .eslintrc.js .postcssrc.js .eslintrc.js .eslintignore build/
 RUN npm install qs
+RUN npm uninstall element-ui && npm i element-ui -S
 RUN cd build && npm install --production && npm run build
 
 # Step 2
