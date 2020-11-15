@@ -59,8 +59,10 @@
 
 <style>
   .loginInput {
-    width: 150px;
     margin-left: 20px;
     height: 60px;
+  }
+  .el-input {
+    width: 150px;
   }
 </style>

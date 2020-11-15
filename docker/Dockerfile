@@ -11,9 +11,8 @@ ADD src build/src
 ADD static build/static
 ADD index.html .babelrc .editorconfig .eslintignore .eslintrc.js .postcssrc.js .eslintrc.js .eslintignore build/
 
-RUN cd build
-RUN npm install qs
-RUN npm install --production && npm run build
+RUN cd build && npm install qs
+RUN cd build && npm install --production && npm run build
 
 # Step 2
 
