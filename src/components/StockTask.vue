@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-header align="left">回测条件: </el-header>
-    <el-form :label-position="labelPosition" label-width="150px">
+    <el-form label-width="150px">
       <el-form-item label="当天">
         <div align="left">
           <el-input type="text" class="queryInput" @change="onChange" @keyup.enter.native="handleEnter($event)" :placeholder="constants.conditionDefault1" v-model="request.condition1"/>
@@ -19,7 +19,7 @@
       </el-form-item>
       <el-form-item label="结果">
         <div align="left">
-          <el-input type="textarea" readonly="true" class="queryInput2" placeholder="请求试例" v-model="demo"/>
+          <el-input type="textarea" :readonly=true class="queryInput2" placeholder="请求试例" v-model="demo"/>
           <el-link href="http://www.iwencai.com/unifiedwap/home/index" type="success" class="tradeLabel">请前往问财验证</el-link>
         </div>
       </el-form-item>
@@ -40,7 +40,7 @@
     </el-form>
     <br/>
     <el-header align="left">回测策略: </el-header>
-    <el-form :label-position="labelPosition" label-width="150px">
+    <el-form label-width="150px">
       <el-form-item label="买入">
         <div align="left">
           <el-time-picker
@@ -49,7 +49,7 @@
             :picker-options="{
               selectableRange: ['09:30:00 - 11:30:00', '13:00:00 - 15:00:00']
             }"
-            :align="right">
+            align="right">
           </el-time-picker>
           <label class="tradeLabel">延后天数</label>
           <el-input type='number' class="tradeDay" placeholder="筛选条件" v-model="request.buyRule.offset"/>
@@ -63,7 +63,7 @@
             :picker-options="{
               selectableRange: ['09:30:00 - 11:30:00', '13:00:00 - 15:00:00']
             }"
-            :align="right">
+            align="right">
           </el-time-picker>
           <label class="tradeLabel">延后天数</label>
           <el-input type='number' class="tradeDay" placeholder="筛选条件" v-model="request.saleRule.offset"/>
@@ -76,9 +76,8 @@
 </template>
 
 <script>
-  import axios from 'axios';
 
-  const BaseUrl = 'stock_task/yanbin/stock';
+const BaseUrl = 'stock_task/yanbin/stock';
 const DatePlaceHolder = '${date}';
 const LastDatePlaceHolder = '${lastDate}';
 
@@ -169,7 +168,7 @@ export default {
   methods: {
     loadTaskConfig() {
       // 获取用户子定义的策略，写入到对应的对象中
-      axios({
+      this.$http.request({
         method: 'get',
         url: `${BaseUrl}/config`
       }).then(
@@ -186,7 +185,7 @@ export default {
           this.request.condition3 = regressionConfig.other;
         }
       ).catch(function (error) { // 请求失败处理
-        alert(error);
+        alert(error.message);
       });
     },
     saveTaskConfig() {
@@ -198,7 +197,7 @@ export default {
           "other": this.request.condition3
         }
       }
-      axios({
+      this.$http.request({
         method: 'post',
         url: `${BaseUrl}/config`,
         data: taskConfig
@@ -209,6 +208,7 @@ export default {
         alert('回测时间不能为空');
         return
       }
+      // TODO 限制时间跨度，可以在后端限制，同步不同的用户等级，开发不同的测试时间段
       var query = this.buildQuery();
       if (isEmpty(query)) {
         alert('回测策略至少有一个不为空');
@@ -217,6 +217,7 @@ export default {
       this.saveTaskConfig();
       this.getTestResult(query);
     },
+    // TODO 如果请求结果返回用户未登录，统一转到登录页面
     getTestResult(query) {
       this.loading = true
       const stockTaskRequest = {
@@ -226,7 +227,7 @@ export default {
         "buyRule": this.request.buyRule,
         "saleRule": this.request.saleRule
       }
-      axios({
+      this.$http.request({
         method: 'post',
         url: `${BaseUrl}/regressionTest`, // 请求地址
         data: stockTaskRequest, // 参数
@@ -246,7 +247,7 @@ export default {
           window.URL.revokeObjectURL(link.href)
         }
       ).catch(function (error) { // 请求失败处理
-        alert(error);
+        alert(error.message);
       }).finally(() => {
         this.loading = false;
       });

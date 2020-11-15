@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form :label-position="labelPosition" :model="form">
+    <el-form :model="form">
       <h3>欢迎登录</h3>
       <br/>
       <div align="middle">
@@ -23,10 +23,6 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  import qs from 'qs';
-  const AdminUrl = 'stock_admin/yanbin/admin';
-
   export default {
     name: "Login",
     data() {
@@ -45,23 +41,7 @@
           alert("用户名或密码为空")
           return
         }
-        axios({
-          method: 'post',
-          url: `${AdminUrl}/login`, // 请求地址
-          headers: {'content-type': 'application/x-www-form-urlencoded'},
-          data: qs.stringify({'userName': this.form.username, 'password': this.form.password})
-        }).then(
-          response => {
-            if (response.status === 200) {
-              this.$router.push({ path: '/' });
-            } else {
-              // TODO 需要调通
-              alert("用户名或密码错误，请重新输入")
-            }
-          }
-        ).catch(function (error) { // 请求失败处理
-          alert("用户名或密码错误，请重新输入")
-        });
+        this.$api.login(this.form.username, this.form.password)
       },
       showPassword() {
         if (this.passwordType=="text") {

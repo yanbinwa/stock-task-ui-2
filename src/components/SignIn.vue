@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form :label-position="labelPosition" :model="form">
+    <el-form :model="form">
       <h3>欢迎注册</h3>
       <br/>
       <div align="middle">
@@ -23,8 +23,6 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  const AdminUrl = 'stock_admin/yanbin/admin';
 
   export default {
     name: "SignIn",
@@ -44,17 +42,7 @@
           alert("用户名或密码为空")
           return
         }
-        axios({
-          method: 'post',
-          url: `${AdminUrl}/signIn`, // 请求地址
-          data: {'name': this.form.username, 'password': this.form.password, 'enable': true}
-        }).then(
-          _ => {
-            this.$router.push({ path: '/login' });
-          }
-        ).catch(function (error) { // 请求失败处理
-          alert("用户名已存在")
-        });
+        this.$api.signIn(this.form.username, this.form.password)
       },
       showPassword() {
         if (this.passwordType=="text") {

@@ -1,7 +1,7 @@
 <template>
   <div class="from_box">
     <el-header align="left">选股条件: </el-header>
-    <el-form :label-position="labelPosition" label-width="150px">
+    <el-form label-width="150px">
       <el-form-item label="当天">
         <div align="left">
           <el-input type="text" class="queryInput" placeholder="筛选条件" v-model="request.condition1"/>
@@ -24,7 +24,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 const BaseUrl = 'stock_task/yanbin/stock';
 const DatePlaceHolder = '${date}';
 const LastDatePlaceHolder = '${lastDate}';
@@ -60,7 +59,7 @@ export default {
   methods: {
     loadTaskConfig() {
       // 获取用户子定义的策略，写入到对应的对象中
-      axios({
+      this.$http.request({
         method: 'get',
         url: `${BaseUrl}/config`
       }).then(
@@ -77,7 +76,7 @@ export default {
           this.request.condition3 = queryConfig.other;
         }
       ).catch(function (error) { // 请求失败处理
-        alert(error);
+        alert(error.message);
       });
     },
     saveTaskConfig() {
@@ -89,7 +88,7 @@ export default {
           "other": this.request.condition3
         }
       }
-      axios({
+      this.$http.request({
         method: 'post',
         url: `${BaseUrl}/config`,
         data: taskConfig
@@ -104,7 +103,7 @@ export default {
       const stockTaskRequest = {
         "queryTemplate": `${DatePlaceHolder}${this.request.condition1}，${LastDatePlaceHolder}${this.request.condition2}，${this.request.condition3}`,
       }
-      axios({
+      this.$http.request({
         method: 'post',
         url: `${BaseUrl}/stockQuery`, // 请求地址
         data: stockTaskRequest, // 参数
