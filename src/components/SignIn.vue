@@ -58,11 +58,11 @@
 </script>
 
 <style>
-  .loginInput {
+  .loginInpu {
     margin-left: 20px;
     height: 60px;
   }
-  .el-input {
+  div.el-input {
     width: 150px;
   }
 </style>
