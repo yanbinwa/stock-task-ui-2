@@ -31,7 +31,7 @@ const errorHandle = (status, other) => {
   switch (status) {
     // 401: 未登录状态，跳转登录页
     case 401:
-      tip('用户名或密码错误');
+      tip('用户未登录');
       toLogin();
       break;
     case 403:
@@ -40,6 +40,8 @@ const errorHandle = (status, other) => {
     case 404:
       tip('请求的资源不存在');
       break;
+    case 500:
+      tip(other);
     default:
       console.log(other);
   }
