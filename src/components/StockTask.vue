@@ -209,6 +209,10 @@ export default {
         return
       }
       // TODO 限制时间跨度，可以在后端限制，同步不同的用户等级，开发不同的测试时间段
+      if (this.request.timeRange[1].getTime() - this.request.timeRange[0].getTime() > 3600 * 1000 * 24 * 14) {
+        alert('目前回测时间跨度只支持两周，请重新选择')
+        return
+      }
       var query = this.buildQuery();
       if (isEmpty(query)) {
         alert('回测策略至少有一个不为空');

@@ -45,8 +45,8 @@ const errorHandle = (status, other) => {
   }
 }
 
-// 创建axios实例
-var instance = axios.create({timeout: 1000 * 12});
+// 创建axios实例，timeout为2分钟
+var instance = axios.create({timeout: 1000 * 120});
 
 // 响应拦截器
 instance.interceptors.response.use(
