@@ -271,7 +271,7 @@ export default {
         if (!isEmpty(query)) {
           query += "，";
         }
-        query += this.request.condition2;
+        query += this.request.condition3;
       }
       return query;
     },
